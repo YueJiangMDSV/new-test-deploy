@@ -13,7 +13,7 @@ install.packages("remotes")
 
 # installs Rcpp, rlang, BH
 install.packages("later")
-
+install.packages("tidyverse")
 install.packages("https://cran.r-project.org/src/contrib/jsonlite_1.6.tar.gz", type="source", repos=NULL)
 install.packages("rjson")
 install.packages("listenv")
