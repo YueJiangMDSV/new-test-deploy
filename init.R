@@ -21,6 +21,10 @@ install.packages("listenv")
 install.packages("anytime")
 install.packages("readr")
 install.packages("heatmaply")
+install.packages("cowplot")
+install.packages("scales")
+install.packages("magick")
+
 
 # installs magrittr, promises, R6
 remotes::install_version("httpuv", version = "1.4.5.1", repos = "http://cloud.r-project.org", upgrade="never")
