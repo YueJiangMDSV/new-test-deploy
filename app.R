@@ -217,7 +217,7 @@ app$layout(
             The value of the date column ranges from January 1, 2000 to March 1, 2010. The date range is the same for Microsoft, Amazon, IBM, and Apple. Each of them has 123 observations in the dataset. 
             Since Google held its IPO in August, 2004, the record for Google started from August 1, 2004. 
             Therefore, there are 68 observations for Google.", style = list('font-size' = '17px')), 
-        htmlP("You can use the slider bar to select the date range", style = list('font-size' = '17px')),   
+        htmlP("You can use the slider bar to select the date range.", style = list('font-size' = '17px')),   
             yearSlider1,
        #space
        htmlIframe(height=35, width=10, style=list(borderWidth = 0)),      
