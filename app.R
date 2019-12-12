@@ -7,14 +7,14 @@ library(plotly)
 library(ggplot2)
 library(tidyverse)
 library(readxl)
-library(cowplot)
+# library(cowplot)
 library(scales)
-
+library(ggthemes)
 library(magick)
 # library(directlabels)
 # library(ggridges)
 # library(viridis)
-theme_set(theme_half_open())
+theme_set(theme_bw())
 
 app <- Dash$new(external_stylesheets = "https://codepen.io/chriddyp/pen/bWLwgP.css")
 
@@ -57,9 +57,9 @@ plot2_tab1 <- df %>%
          title = "Monthly price changes between 2000 and 2010") +
     scale_fill_manual(values = c("orange", "royalblue")) +
     theme(legend.title = element_blank(), legend.position = "none") +
-    facet_wrap(~ company, nrow = 2) +
-    panel_border() +
-    background_grid()
+    facet_wrap(~ company, nrow = 2) 
+#     panel_border() +
+#     background_grid()
 
     ggplotly(plot2_tab1)
 
