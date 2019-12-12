@@ -1,4 +1,5 @@
 
+
 ## importing required libraries
 library(dash)
 library(dashCoreComponents)
@@ -19,9 +20,13 @@ colors <- list(
   text = '#0013a3'
 )
 
-textStyle = list(
+textStyle1 = list(
   textAlign = 'center',
   color = colors$text
+)
+
+textStyle2 = list(
+  textAlign = 'center'
 )
 
 # importing wrangled dataset
@@ -29,23 +34,39 @@ df <- read_csv("https://raw.githubusercontent.com/UBC-MDS/DSCI-532_group-211_R-d
 df2 <- read_csv("https://raw.githubusercontent.com/UBC-MDS/DSCI-532_group-211_R-dash/master/data/tab2.csv")
 df$company <- factor(df$company)
 
-# Dataset intro table
+
+# prepare dataframe for data table in tab1
+all_companies <- unique(df$company)
+make_table <- function(years=c(2000, 2010), 
+                       companies = all_companies){
+  
+  df %>%
+    filter(year >= years[1] & year <= years[2]) %>%
+    filter(company %in% companies) %>%
+    df_to_list()
+  
+}
+
+# NEW: Added table that can be sorted!
+# Table that can be sorted by column
 table <- dashDataTable(
-            id='data-table',
-              style_table = list(
-              maxHeight = '200',
-              overflowY = 'scroll'
-            ),
-          columns = map(colnames(df), 
+  id = "stock-table",
+  # these make the table scrollable
+  fixed_rows = list(headers = TRUE, data = 0),
+  style_table = list(
+    maxHeight = '500',
+    overflowY = 'scroll'
+  ),
+  columns = map(colnames(df), 
                    function(colName){
                      list(
                        id = colName,
                        name = colName
                      )
                    }),
-          data=df[c(1,2,3,123,124,125,246,247,248,369,370,371,437,438,439), ]    
-
-                )
+  data = df,
+  sort_action="native"
+)
 
 # stock history plot
 make_graph1 <- function(df){
@@ -76,8 +97,7 @@ plot2_tab1 <- df %>%
           legend.position = "none",
           plot.title = element_text(hjust = 0.5, vjust = 2)) +
     facet_wrap(~ company, nrow = 2) 
-    # panel_border() +
-    # background_grid()
+   
 
     ggplotly(plot2_tab1)
 
@@ -116,8 +136,20 @@ graph3 <- dccGraph(
   id = 'investment-graph',
   figure=make_graph3(df2) # gets initial data using argument defaults
 )
-# stock companies' dropdown
 
+# stock companies' dropdown for tab1
+stocksDropdown1 <- dccDropdown(
+  id = "stocks-dropdown1",
+  # map/lapply can be used as a shortcut instead of writing the whole list
+  # especially useful if you wanted to filter by country!
+  options = map(
+    levels(df$company), function(x){
+      list(label=x, value=x)
+    }),
+  value = levels(df$company), #Selects all by default
+  multi = TRUE
+)
+# stock companies' dropdown for tab2
 stocksDropdown <- dccDropdown(
   id = 'stocks-dropdown',
   
@@ -130,6 +162,17 @@ stocksDropdown <- dccDropdown(
   multi = TRUE
 )
 
+## slider for tab1
+yearMarks <- map(unique(df$year), as.character)
+names(yearMarks) <- unique(df$year)
+yearSlider1 <- dccRangeSlider(
+  id = "year1",
+  marks = yearMarks,
+  min = 2000,
+  max = 2010,
+  step = 1,
+  value = list(2000, 2010)
+)
 
 
 ## slider for tab3
@@ -148,34 +191,51 @@ yearSlider <- dccSlider(
   max = 12,
   
  
-  value = 12
+  value = list(2000, 2010)
 )
+
 
 app$layout(
   htmlDiv(
     list(
-      htmlH1("Stock Price Data Analysis"),
+      htmlH1("Stock Price Data Analysis", style = textStyle2),
       dccTabs(id="tabs-example", value='tab-1',children=list(
 
 
         # tab1 for data intro
     dccTab(label = "About our data", htmlDiv(list(
-      htmlH1("Dataset Introduction"),
+      htmlH1("Dataset Introduction", style = textStyle1),
       htmlP("The dataset we are using is the  Stocks  data from the vega-datasets. 
-            The dataset has 560 observations in total. "),
-
-                # addding dataset intro table to tab1
-            table,
-
-            
-            htmlP("There are 5 companies in total, and they are Microsoft, Amazon, IBM, Google, and Apple."),
-            htmlP("The date column lists out the date when the stock price was recorded.
+            The dataset has 560 observations in total. ", style = list('font-size' = '17px')),
+      htmlP("There are 5 companies in total, and they are Microsoft, Amazon, IBM, Google, and Apple. 
+      You can use the dropdown window to select the companies.", style = list('font-size' = '17px')),
+      
+            stocksDropdown1,
+    #space
+       htmlIframe(height=15, width=10, style=list(borderWidth = 0)),
+      htmlP("The date column lists out the date when the stock price was recorded.
             The value of the date column ranges from January 1, 2000 to March 1, 2010. The date range is the same for Microsoft, Amazon, IBM, and Apple. Each of them has 123 observations in the dataset. 
             Since Google held its IPO in August, 2004, the record for Google started from August 1, 2004. 
-            Therefore, there are 68 observations for Google."),
-            htmlP(" The price column lists out the price of that stock on the recorded date."),
+            Therefore, there are 68 observations for Google.", style = list('font-size' = '17px')), 
+        htmlP("You can use the slider bar to select the date range", style = list('font-size' = '17px')),   
+            yearSlider1,
+       #space
+       htmlIframe(height=35, width=10, style=list(borderWidth = 0)),      
+                # addding dataset intro table to tab1
+            table,
+       #space
+       htmlIframe(height=35, width=10, style=list(borderWidth = 0)), 
+            
+            
+            
+            htmlP(" The price column lists out the price of that stock on the recorded date.", style = list('font-size' = '17px')),
+            htmlP(" We created the monthly_return column, which is the monthly percentage changes 
+            in stock prices compare to the previous month.", style = list('font-size' = '17px')),
+            htmlP(" The volatility column shows the stardard deviation of stock prices within a year.", style = list('font-size' = '17px')),
             htmlP(" The purpose of this app is to help people form a better view of stock price fluctuations 
-                        and long-term investment gains.")
+                        and long-term investment gains.", style = list('font-size' = '17px')),
+      #space
+       htmlIframe(height=45, width=10, style=list(borderWidth = 0)) 
    
             )
             )), 
@@ -186,10 +246,11 @@ app$layout(
   
     dccTab(label='Stock trends', value = 'tab-2', htmlDiv(list(
 
-        htmlH1("Price History"),
-                htmlH2("From 2000 to 2010, Apple's stock price increased 760%." ),
+        htmlH1("Price History", style = textStyle1),
+                htmlH2("From 2000 to 2010, Apple's stock price increased 760%.", style = textStyle2),
                 htmlH3("In this interactive chart below, you can visualize how the stocks of 5 major tech companies changed between 2000 and 2010." ),
-                htmlP("Use the dropdown window to select the company you want to explore. Use the slide bar down the graph to select the time range.") ,
+                htmlP("Use the dropdown window to select the company you want to explore.
+                Use the slide bar down the graph to select the time range.", style = list('font-size' = '17px')) ,
                 stocksDropdown, 
                 #space
                 htmlIframe(height=15, width=10, style=list(borderWidth = 0)),
@@ -198,7 +259,8 @@ app$layout(
                 #space
                 htmlIframe(height=15, width=10, style=list(borderWidth = 0)),
                 # monthly chart
-                graph2
+                graph2,
+                htmlIframe(height=15, width=10, style=list(borderWidth = 0))
       )
               )
 
@@ -206,7 +268,7 @@ app$layout(
     ),
 
     dccTab(label = "Investment Value" ,htmlDiv(list(
-        htmlH1("How much will I gain?"),
+        htmlH1("How much will I gain?", style = textStyle1),
         htmlH3("If I invested $10,000 in one of the companies in August 2004, how much will my investment worth in later days for each company?"),
         htmlP("Use the year slider bar to select the time range and find out the investment value."), 
                        
@@ -222,26 +284,33 @@ app$layout(
 
             graph3,
              
-                htmlH1("Why Apple has the highest investment value?"),
-                htmlP("If you are curious why Apple has the highest investment value while Google has the highest price in the historial price chart you have seen in the previous tab, let's see the math here."), 
+                htmlH1("Why Apple has the highest investment value?", style = textStyle1),
+                htmlP("If you are curious why Apple has the highest investment value 
+                while Google has the highest price in the historial price chart you have seen in the previous tab, 
+                let's see the math here.", style = list('font-size' = '17px')), 
                      
-                htmlP("In August 2004, Google's stock price was $102.37. With $10,000, I can buy 10,000/102.37 = 97.68 shares."), 
+                htmlP("In August 2004, Google's stock price was $102.37. 
+                With $10,000, I can buy 10,000/102.37 = 97.68 shares.", style = list('font-size' = '17px')), 
                     
-                htmlP("In March 2010, Google's stock price was $560.19. Then my total investment value is 560.19 * 97.68 shares = $54,722.08."), 
+                htmlP("In March 2010, Google's stock price was $560.19. 
+                Then my total investment value is 560.19 * 97.68 shares = $54,722.08.", style = list('font-size' = '17px')), 
                     
-                htmlP("On the other hand, in August 2004, Apple's stock price was $17.25. With $10,000, I can buy 10,000/102.37 = 579.71 shares."), 
+                htmlP("On the other hand, in August 2004, Apple's stock price was $17.25. 
+                With $10,000, I can buy 10,000/102.37 = 579.71 shares.", style = list('font-size' = '17px')), 
                     
-                htmlP("In March 2010, Apple's stock price was $223.02. Then my total investment value is  223.02 579.71 * shares = $129,286.95."), 
+                htmlP("In March 2010, Apple's stock price was $223.02. 
+                Then my total investment value is  223.02 579.71 * shares = $129,286.95.", style = list('font-size' = '17px')), 
                    
-                htmlH4("Clearly, $129,286.95 worth much more than $54,722.08. You would earn much more if you picked Apple!"), 
+                htmlH4("Clearly, $129,286.95 worth much more than $54,722.08. 
+                You would earn much more if you picked Apple!"), 
                        
                 htmlH3("Between 2004 and 2010, Google's stock price only increased 447.91%, but Apple increased 1192.9%."), 
                     
-                htmlP("It is this high growth that drags up Apple's investment value."), 
+                htmlP("It is this high growth that drags up Apple's investment value.", style = list('font-size' = '17px')), 
                     
-                htmlH2("In investment, growth is more important than price!"), 
+                htmlH2("In investment, growth is more important than price!", style = list(color = '#0013a3')), 
                     
-                htmlP("Hope this answers your question and gives you some insights on investment."), 
+                htmlP("Hope this answers your question and gives you some insights on investment.", style = list('font-size' = '17px')), 
                     
                 
                 # To add some space
@@ -301,6 +370,15 @@ app$callback(
     df2 <- df2 %>% 
             filter(date >= '2004-08-01' &  date <= dates[year_range]) 
     make_graph3(df2)
+  })
+
+app$callback(
+  #update data of stock-table
+  output=list(id = 'stock-table', property='data'),
+  params=list(input(id = 'year1', property='value'),
+              input(id = 'stocks-dropdown1', property='value')),
+  function(year_value, company_value) {
+    make_table(year_value, company_value)
   })
 
 
