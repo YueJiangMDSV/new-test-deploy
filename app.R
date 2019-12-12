@@ -10,11 +10,11 @@ library(readxl)
 #library("cowplot")
 #library("scales")
 
-library(magick)
-library(directlabels)
-library(ggridges)
-library(viridis)
-theme_set(theme_half_open())
+# library(magick)
+# library(directlabels)
+# library(ggridges)
+# library(viridis)
+# theme_set(theme_half_open())
 
 app <- Dash$new(external_stylesheets = "https://codepen.io/chriddyp/pen/bWLwgP.css")
 
