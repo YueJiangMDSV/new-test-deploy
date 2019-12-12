@@ -57,9 +57,9 @@ plot2_tab1 <- df %>%
          title = "Monthly price changes between 2000 and 2010") +
     scale_fill_manual(values = c("orange", "royalblue")) +
     theme(legend.title = element_blank(), legend.position = "none") +
-    facet_wrap(~ company, nrow = 2) +
-    panel_border() +
-    background_grid()
+    facet_wrap(~ company, nrow = 2) 
+#     panel_border() +
+#     background_grid()
 
     ggplotly(plot2_tab1)
 
