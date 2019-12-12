@@ -7,7 +7,7 @@ library(plotly)
 library(ggplot2)
 library(tidyverse)
 library(readxl)
-library("cowplot")
+#library("cowplot")
 #library("scales")
 
 library(magick)
