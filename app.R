@@ -7,14 +7,14 @@ library(plotly)
 library(ggplot2)
 library(tidyverse)
 library(readxl)
-#library("cowplot")
-#library("scales")
+library(cowplot)
+library(scales)
 
-# library(magick)
+library(magick)
 # library(directlabels)
 # library(ggridges)
 # library(viridis)
-# theme_set(theme_half_open())
+theme_set(theme_half_open())
 
 app <- Dash$new(external_stylesheets = "https://codepen.io/chriddyp/pen/bWLwgP.css")
 
@@ -30,7 +30,7 @@ textStyle = list(
 
 # importing wrangled dataset
 
-df <- read_csv("data/tab1.csv")
+df <- read_csv("https://raw.githubusercontent.com/UBC-MDS/DSCI-532_group-211_R-dash/master/data/tab1.csv")
 df$company <- factor(df$company)
 
 # stock history plot
@@ -57,9 +57,9 @@ plot2_tab1 <- df %>%
          title = "Monthly price changes between 2000 and 2010") +
     scale_fill_manual(values = c("orange", "royalblue")) +
     theme(legend.title = element_blank(), legend.position = "none") +
-    facet_wrap(~ company, nrow = 2) 
-#     panel_border() +
-#     background_grid()
+    facet_wrap(~ company, nrow = 2) +
+    panel_border() +
+    background_grid()
 
     ggplotly(plot2_tab1)
 
