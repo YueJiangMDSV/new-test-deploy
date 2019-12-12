@@ -21,9 +21,10 @@ install.packages("listenv")
 install.packages("anytime")
 install.packages("readr")
 install.packages("heatmaply")
-install.packages("cowplot")
+# install.packages("cowplot")
 install.packages("scales")
 install.packages("magick")
+install.packages("ggthemes")
 
 
 # installs magrittr, promises, R6
